@@ -1,0 +1,29 @@
+{
+  "name": "react-window-size-listener-dev",
+  "version": "0.0.0",
+  "description": "WindowSizeListener",
+  "main": "dist/react-window-size-listener-dev.min.js",
+  "homepage": "https://github.com/Kunokdev/react-window-size-listener-dev",
+  "authors": [
+    "kunokdev"
+  ],
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "react",
+    "react-component"
+  ],
+  "license": "MIT",
+  "ignore": [
+    ".editorconfig",
+    ".gitignore",
+    "package.json",
+    "src",
+    "node_modules",
+    "example",
+    "test"
+  ]
+}
