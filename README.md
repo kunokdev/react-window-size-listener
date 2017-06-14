@@ -1,61 +1,57 @@
-# WindowSizeListener
+# react-window-size-listener
 
-__COMPONENT DESCRIPTION GOES HERE__
+React component for listening to window resize events.
 
+This is ES6 rewrite of [react-window-resize-listener](https://github.com/cesarandreu/react-window-resize-listener) due to deprecation warnings and many developers commented on this issue without getting any response for a while.
 
-## Demo & Examples
-
-Live demo: [Kunokdev.github.io/react-window-size-listener-dev](http://Kunokdev.github.io/react-window-size-listener-dev/)
-
-To build the examples locally, run:
-
-```
-npm install
-npm start
-```
-
-Then open [`localhost:8000`](http://localhost:8000) in a browser.
-
+This version doesn't include tests, PR would be welcome!
 
 ## Installation
 
-The easiest way to use react-window-size-listener-dev is to install it from NPM and include it in your own React build process (using [Browserify](http://browserify.org), [Webpack](http://webpack.github.io/), etc).
-
-You can also use the standalone build by including `dist/react-window-size-listener-dev.js` in your page. If you use this, make sure you have already included React, and it is available as a global variable.
-
-```
-npm install react-window-size-listener-dev --save
+```sh
+npm install react-window-size-listener --save
 ```
 
+## API
 
-## Usage
+### `<WindowSizeListener onResize/>`
 
-__EXPLAIN USAGE HERE__
+React component that takes a single onResize callback which is called every time the window is resized.
 
+#### Props
+
+* `void onResize(windowSize)` - Callback that gets called every time the window is resized. It's always called once soon after getting mounted. Receives a `windowSize` param which is an Object with keys `windowHeight` and `windowWidth`, both values are numbers.
+
+#### Example
+
+```jsx
+import WindowSizeListener from 'react-window-size-listener'
+import ReactDOM from 'react-dom'
+import React from 'react'
+
+ReactDOM.render(
+  <div>
+    <WindowSizeListener onResize={windowSize => {
+      console.log('Window height', windowSize.windowHeight)
+      console.log('Window width', windowSize.windowWidth)
+    }}/>
+  </div>,
+  document.getElementById('app')
+)
 ```
-var WindowSizeListener = require('react-window-size-listener-dev');
 
-<WindowSizeListener>Example</WindowSizeListener>
-```
+### `WindowSizeListener.DEBOUNCE_TIME`
 
-### Properties
+Numeric value of how much time should be waited before calling each listener function. Default value is `100`.
 
-* __DOCUMENT PROPERTIES HERE__
+The debounce function is created lazily when the component instance is mounted, so you can change the value before mounting.
 
-### Notes
+## Details
 
-__ADDITIONAL USAGE NOTES__
+This component lazily adds the window resize event listener, this means it works with universal apps. The listener only get added when a component instance gets mounted.
 
-
-## Development (`src`, `lib` and the build process)
-
-**NOTE:** The source code for the component is in `src`. A transpiled CommonJS version (generated with Babel) is available in `lib` for use with node.js, browserify and webpack. A UMD bundle is also built to `dist`, which can be included without the need for any build system.
-
-To build, watch and serve the examples (which will also watch the component source), run `npm start`. If you just want to watch changes to `src` and rebuild `lib`, run `npm run watch` (this is useful if you are working with `npm link`).
+To avoid performance problems associated with registering multiple event listeners, it only registers a single listener which is shared among all component instances.
 
 ## License
 
-__PUT LICENSE HERE__
-
-Copyright (c) 2017 kunokdev.
-
+MIT
