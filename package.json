@@ -28,7 +28,7 @@
     "react-dom": ">=15.0.0 <= 16"
   },
   "scripts": {
-    "start": "webpack --watch",
+    "dev": "webpack --watch",
     "build": "webpack -p"
   },
   "keywords": [

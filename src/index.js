@@ -86,4 +86,4 @@ WindowSizeListener.propTypes = {
   onResize: PropTypes.func.isRequired
 }
 
-module.exports = WindowSizeListener
+export default WindowSizeListener
