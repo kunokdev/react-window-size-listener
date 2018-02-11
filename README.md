@@ -42,21 +42,28 @@ ReactDOM.render(
 
 alternatively you can render it with children:
 
-```
-<WindowSizeListener onResize={(windowSize) => console.log(windowSize)}>
+```jsx
+<WindowSizeListener
+  onResize={(windowSize) => console.log(windowSize)}
+>
   <h1>Hello world!</h1>
 </WindowSizeListener>
 ```
 
 or as Higher Order Component (HOC):
 
-```
+```jsx
 import React from 'react';
 import { withWindowSizeListener } from 'react-window-size-listener';
 
 class App extends React.Component {
   render() {
-    return (<span>{`${this.props.windowSize.windowWidth}, ${this.props.windowSize.windowHeight}`}</span>);
+    return (
+      <span>
+        {this.props.windowSize.windowWidth}
+        {this.props.windowSize.windowHeight}
+      </span>
+    );
   }
 }
 
