@@ -4,8 +4,6 @@ React component for listening to window resize events.
 
 This is ES6 rewrite of [react-window-resize-listener](https://github.com/cesarandreu/react-window-resize-listener) due to deprecation warnings and many developers commented on this issue without getting any response for a while.
 
-This version doesn't include tests, PR would be welcome!
-
 ## Installation
 
 ```sh
@@ -24,6 +22,8 @@ React component that takes a single onResize callback which is called every time
 
 #### Example
 
+As regular component:
+
 ```jsx
 import WindowSizeListener from 'react-window-size-listener'
 import ReactDOM from 'react-dom'
@@ -39,6 +39,31 @@ ReactDOM.render(
   document.getElementById('app')
 )
 ```
+
+alternatively you can render it with children:
+
+```
+<WindowSizeListener onResize={(windowSize) => console.log(windowSize)}>
+  <h1>Hello world!</h1>
+</WindowSizeListener>
+```
+
+or as Higher Order Component (HOC):
+
+```
+import React from 'react';
+import { withWindowSizeListener } from 'react-window-size-listener';
+
+class App extends React.Component {
+  render() {
+    return (<span>{`${this.props.windowSize.windowWidth}, ${this.props.windowSize.windowHeight}`}</span>);
+  }
+}
+
+export default withWindowSizeListener(App);
+
+```
+
 
 ### `WindowSizeListener.DEBOUNCE_TIME`
 

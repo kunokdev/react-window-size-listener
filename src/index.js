@@ -69,7 +69,7 @@ class WindowSizeListener extends React.Component {
   }
 
   render() {
-    return null
+    return (this.props.children ? this.props.children : null)
   }
 
   get DEBOUNCE_TIME(){
@@ -84,6 +84,30 @@ class WindowSizeListener extends React.Component {
 
 WindowSizeListener.propTypes = {
   onResize: PropTypes.func.isRequired
+}
+
+
+export function withWindowSizeListener(Component){
+  return class withWindowSizeListener extends React.Component {
+
+    constructor(props){
+      super(props)
+      this.state = {
+        windowSize: {
+          windowWidth: null,
+          windowHeight: null,
+        }
+      }
+    }
+
+    render(){
+      return (
+        <WindowSizeListener onResize={(windowSize) => this.setState({ windowSize })}>
+          <Component {...this.props} windowSize={this.state.windowSize} />
+        </WindowSizeListener>
+      )
+    }
+  }
 }
 
 export default WindowSizeListener
