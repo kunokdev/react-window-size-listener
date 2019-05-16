@@ -60,13 +60,9 @@ class WindowSizeListener extends React.Component {
    */
   onResize() {
     const windowWidth =
-      window.innerWidth ||
-      document.documentElement.clientWidth ||
-      document.body.clientWidth;
+      window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     const windowHeight =
-      window.innerHeight ||
-      document.documentElement.clientHeight ||
-      document.body.clientHeight;
+      window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
     this._listeners.forEach(listener => {
       listener({ windowWidth, windowHeight });
@@ -96,17 +92,23 @@ export function withWindowSizeListener(Component) {
       super(props);
       this.state = {
         windowSize: {
-          windowWidth: null,
-          windowHeight: null
+          windowWidth:
+            (window && window.innerWidth) ||
+            (document &&
+              ((document.documentElement && document.documentElement.clientWidth) ||
+                (document.body && document.body.clientWidth))) ||
+            null,
+          windowHeight:
+            (window && window.innerHeight) ||
+            (document && (document.documentElement.clientHeight || document.body.clientHeight)) ||
+            null
         }
       };
     }
 
     render() {
       return (
-        <WindowSizeListener
-          onResize={windowSize => this.setState({ windowSize })}
-        >
+        <WindowSizeListener onResize={windowSize => this.setState({ windowSize })}>
           <Component {...this.props} windowSize={this.state.windowSize} />
         </WindowSizeListener>
       );
