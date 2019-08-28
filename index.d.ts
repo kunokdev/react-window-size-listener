@@ -1,8 +1,12 @@
 declare module "react-window-size-listener" {
   import React from "react";
 
+  interface WindowSize {
+    windowWidth: number;
+    windowHeight: number;
+  }
   interface Props {
-    onResize: () => any;
+    onResize: (windowSize: WindowSize) => any;
     children?: any;
   }
 
