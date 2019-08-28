@@ -6,10 +6,10 @@ declare module "react-window-size-listener" {
     children?: any;
   }
 
-  export class WindowSizeListener extends React.Component<Props> {
+  export default class WindowSizeListener extends React.Component<Props> {
     private _listeners: any[];
     public displayName: string;
   }
 
-  export type withWindowSizeListener = <P>(Component: React.ComponentType<P>) => any;
+  export type withWindowSizeListener = <P>(Component: React.ComponentType<P>) => WindowSizeListener;
 }
