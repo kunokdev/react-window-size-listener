@@ -11,5 +11,5 @@ declare module "react-window-size-listener" {
     public displayName: string;
   }
 
-  export type withWindowSizeListener = <P>(Component: React.ComponentType<P>) => WindowSizeListener;
+  export type withWindowSizeListener = <P>(Component: React.ComponentType<P>) => any;
 }
