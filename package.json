@@ -1,6 +1,6 @@
 {
   "name": "react-window-size-listener",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "React component for listening to window resize events",
   "main": "lib/index.js",
   "author": "Cesar Andreu <cesarandreu@gmail.com>, rewrite by Krunoslav Banovac <kunokdev@gmail.com>",
