@@ -11,7 +11,7 @@ class WindowSizeListener extends React.Component {
     super(props);
     this.displayName = "WindowSizeListener";
     this._listeners = [];
-    this.DEBOUNCE_TIME = 100;
+    this.DEBOUNCE_TIME = this.props.debounceTime;
     this.onResize = this.onResize.bind(this);
   }
 
