@@ -26,8 +26,8 @@
     "webpack": "^3.11.0"
   },
   "peerDependencies": {
-    "react": ">=15.0.0 <= 16",
-    "react-dom": ">=15.0.0 <= 16"
+    "react": ">=15.0.0 <= 17",
+    "react-dom": ">=15.0.0 <= 17"
   },
   "scripts": {
     "dev": "webpack --watch",
