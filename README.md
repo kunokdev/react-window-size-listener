@@ -103,14 +103,14 @@ import type { WindowSize, UseWindowSizeOptions } from 'react-window-size-listene
 
 ## Migration from v1
 
-Version 1.6.0 is a complete rewrite. The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of the `useWindowSize` hook.
+Version 2.0.0 is a complete rewrite. The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of the `useWindowSize` hook.
 
 **Old way (v1):**
 ```jsx
 <WindowSizeListener onResize={windowSize => console.log(windowSize)} />
 ```
 
-**New way (v1.6+):**
+**New way (v2.0+):**
 ```jsx
 const { width, height } = useWindowSize();
 useEffect(() => {
