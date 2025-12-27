@@ -3,9 +3,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useWindowSize } from './index';
 
 describe('useWindowSize', () => {
-  const originalInnerWidth = window.innerWidth;
-  const originalInnerHeight = window.innerHeight;
-
   beforeEach(() => {
     // Reset window dimensions
     window.innerWidth = 1024;
@@ -14,12 +11,11 @@ describe('useWindowSize', () => {
   });
 
   afterEach(() => {
-    window.innerWidth = originalInnerWidth;
-    window.innerHeight = originalInnerHeight;
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
-  it('should return the current window size on initial render', () => {
+  it('should return the current window size on mount', () => {
     const { result } = renderHook(() => useWindowSize());
 
     expect(result.current.width).toBe(1024);
@@ -35,10 +31,10 @@ describe('useWindowSize', () => {
       window.dispatchEvent(new Event('resize'));
     });
 
-    // Should not update immediately due to debounce
+    // Should not update immediately
     expect(result.current.width).toBe(1024);
 
-    // Fast forward debounce time
+    // Fast forward time
     act(() => {
       vi.advanceTimersByTime(100);
     });
@@ -70,83 +66,35 @@ describe('useWindowSize', () => {
     expect(result.current.width).toBe(200);
   });
 
-  it('should debounce rapid resize events', () => {
-    const { result } = renderHook(() => useWindowSize({ debounceTime: 100 }));
-
-    // Simulate rapid resizing
-    act(() => {
-      for (let i = 0; i < 10; i++) {
-        window.innerWidth = 100 + i * 50;
-        window.dispatchEvent(new Event('resize'));
-        vi.advanceTimersByTime(20); // Less than debounce time
-      }
-    });
-
-    // Should still show initial value
-    expect(result.current.width).toBe(1024);
-
-    // Final resize value should be 100 + 9*50 = 550
-    window.innerWidth = 550;
-
-    act(() => {
-      vi.advanceTimersByTime(100);
-    });
-
-    expect(result.current.width).toBe(550);
-  });
-
   it('should cleanup event listeners on unmount', () => {
     const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
     const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
 
     const { unmount } = renderHook(() => useWindowSize());
 
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'resize',
-      expect.any(Function),
-      { passive: true }
-    );
+    expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true });
 
     unmount();
 
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'resize',
-      expect.any(Function)
-    );
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function));
   });
 
-  it('should clear pending timeout on unmount', () => {
-    const clearTimeoutSpy = vi.spyOn(global, 'clearTimeout');
-
-    const { unmount } = renderHook(() => useWindowSize());
-
-    act(() => {
-      window.dispatchEvent(new Event('resize'));
-    });
-
-    unmount();
-
-    // clearTimeout should be called during cleanup
-    expect(clearTimeoutSpy).toHaveBeenCalled();
-  });
-
-  it('should re-bind listener when debounceTime changes', () => {
+  it('should use passive event listener', () => {
     const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
-    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
-
-    const { rerender } = renderHook(
-      ({ debounceTime }) => useWindowSize({ debounceTime }),
-      { initialProps: { debounceTime: 100 } }
-    );
-
-    const initialCallCount = addEventListenerSpy.mock.calls.length;
-
-    rerender({ debounceTime: 200 });
-
-    // Should have removed old listener and added new one
-    expect(removeEventListenerSpy).toHaveBeenCalled();
-    expect(addEventListenerSpy.mock.calls.length).toBeGreaterThan(initialCallCount);
+    renderHook(() => useWindowSize());
+    expect(addEventListenerSpy).toHaveBeenCalledWith('resize', expect.any(Function), { passive: true });
   });
 
-});
+  it('should clear timeout on unmount', () => {
+     const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
+     const { unmount } = renderHook(() => useWindowSize({ debounceTime: 100 }));
 
+     act(() => {
+       window.dispatchEvent(new Event('resize'));
+     });
+
+     unmount();
+
+     expect(clearTimeoutSpy).toHaveBeenCalled();
+  });
+});

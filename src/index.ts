@@ -15,15 +15,18 @@ export interface UseWindowSizeOptions {
 
 const isClient = typeof window !== 'undefined';
 
-function getWindowSize(): WindowSize {
+const getWindowSize = (): WindowSize => {
   if (!isClient) {
-    return { width: 0, height: 0 };
+    return {
+      width: 0,
+      height: 0,
+    };
   }
   return {
     width: window.innerWidth,
     height: window.innerHeight,
   };
-}
+};
 
 /**
  * Hook that tracks the window size with optional debouncing.
@@ -34,7 +37,6 @@ function getWindowSize(): WindowSize {
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
   const { debounceTime = 100 } = options;
 
-  // Initialize with 0 on server, will be updated on mount
   const [windowSize, setWindowSize] = useState<WindowSize>(getWindowSize);
 
   const handleResize = useCallback(() => {
@@ -46,23 +48,26 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
       return;
     }
 
-    // Update size on mount (handles SSR hydration)
-    handleResize();
-
     let timeoutId: number | null = null;
 
     const debouncedHandleResize = () => {
-      if (timeoutId !== null) {
+      if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
-      timeoutId = window.setTimeout(handleResize, debounceTime);
+
+      timeoutId = window.setTimeout(() => {
+        handleResize();
+      }, debounceTime);
     };
 
-    window.addEventListener('resize', debouncedHandleResize, { passive: true });
+    // Update size on mount to ensure we have correct values (hydration mismatch fix)
+    handleResize();
+
+    window.addEventListener("resize", debouncedHandleResize, { passive: true });
 
     return () => {
-      window.removeEventListener('resize', debouncedHandleResize);
-      if (timeoutId !== null) {
+      window.removeEventListener("resize", debouncedHandleResize);
+      if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
     };
