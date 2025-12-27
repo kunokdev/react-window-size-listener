@@ -1,88 +1,85 @@
 # react-window-size-listener
 
-React component for listening to window resize events.
+A minimalistic, modern React hook for listening to window resize events with built-in debouncing.
 
-This is ES6 rewrite of [react-window-resize-listener](https://github.com/cesarandreu/react-window-resize-listener) due to deprecation warnings and many developers commented on this issue without getting any response for a while.
+## Features
+
+- **Minimalistic**: Tiny footprint, no external dependencies (removed lodash).
+- **Modern**: Written in TypeScript, built as a React Hook.
+- **Performant**: Built-in debouncing to prevent excessive re-renders.
+- **SSR Safe**: Checks for `window` existence, safe to use in Next.js/Gatsby/Remix.
 
 ## Installation
 
 ```sh
-npm install react-window-size-listener --save
+npm install react-window-size-listener
+# or
+yarn add react-window-size-listener
+# or
+pnpm add react-window-size-listener
+```
+
+## Usage
+
+### `useWindowSize`
+
+This hook returns an object containing the current `width` and `height` of the window.
+
+```jsx
+import React from 'react';
+import { useWindowSize } from 'react-window-size-listener';
+
+function App() {
+  const { width, height } = useWindowSize();
+
+  return (
+    <div>
+      <h1>Window Size</h1>
+      <p>Width: {width}px</p>
+      <p>Height: {height}px</p>
+    </div>
+  );
+}
+```
+
+### Configuration
+
+You can customize the debounce time by passing an options object. The default is `100ms`.
+
+```jsx
+// Wait 500ms after the last resize event before updating state
+const { width, height } = useWindowSize({ debounceTime: 500 });
 ```
 
 ## API
 
-### `<WindowSizeListener onResize/>`
+### `useWindowSize(options?)`
 
-React component that takes a single onResize callback which is called every time the window is resized.
+#### Parameters
 
-#### Props
+- `options` (optional): `UseWindowSizeOptions`
+  - `debounceTime` (number): Amount of time in milliseconds to wait before updating the state after the last resize event. Default: `100`.
 
-* `void onResize(windowSize)` - Callback that gets called every time the window is resized. It's always called once soon after getting mounted. Receives a `windowSize` param which is an Object with keys `windowHeight` and `windowWidth`, both values are numbers.
+#### Returns
 
-#### Example
+- `WindowSize`: `{ width: number, height: number }`
 
-As regular component:
+## Migration from v1
 
+Version 1.6.0 is a complete rewrite. The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of the `useWindowSize` hook.
+
+**Old way (v1):**
 ```jsx
-import WindowSizeListener from 'react-window-size-listener'
-import ReactDOM from 'react-dom'
-import React from 'react'
-
-ReactDOM.render(
-  <div>
-    <WindowSizeListener onResize={windowSize => {
-      console.log('Window height', windowSize.windowHeight)
-      console.log('Window width', windowSize.windowWidth)
-    }}/>
-  </div>,
-  document.getElementById('app')
-)
+<WindowSizeListener onResize={windowSize => console.log(windowSize)} />
 ```
 
-alternatively you can render it with children:
-
+**New way (v1.6+):**
 ```jsx
-<WindowSizeListener
-  onResize={(windowSize) => console.log(windowSize)}
->
-  <h1>Hello world!</h1>
-</WindowSizeListener>
+const { width, height } = useWindowSize();
+useEffect(() => {
+  console.log({ width, height });
+}, [width, height]);
 ```
-
-or as Higher Order Component (HOC):
-
-```jsx
-import React from 'react';
-import { withWindowSizeListener } from 'react-window-size-listener';
-
-class App extends React.Component {
-  render() {
-    return (
-      <span>
-        {this.props.windowSize.windowWidth}
-        {this.props.windowSize.windowHeight}
-      </span>
-    );
-  }
-}
-
-export default withWindowSizeListener(App);
-
-```
-
-
-### `WindowSizeListener.DEBOUNCE_TIME`
-
-Numeric value of how much time should be waited before calling each listener function. Default value is `100`.
-
-The debounce function is created lazily when the component instance is mounted, so you can change the value before mounting.
-
-## Details
-
-This component lazily adds the window resize event listener, this means it works with universal apps. The listener only get added when a component instance gets mounted.
-
-To avoid performance problems associated with registering multiple event listeners, it only registers a single listener which is shared among all component instances.
 
 ## License
 

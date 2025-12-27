@@ -1,8 +1,15 @@
 {
   "name": "react-window-size-listener",
-  "version": "1.5.3",
-  "description": "React component for listening to window resize events",
-  "main": "lib/index.js",
+  "version": "1.6.0",
+  "description": "Minimalistic React hook for listening to window resize events with built-in debouncing.",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "require": "./dist/index.js",
+    "default": "./dist/index.module.js"
+  },
   "author": "Cesar Andreu <cesarandreu@gmail.com>, rewrite by Krunoslav Banovac <kunokdev@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/kunokdev/react-window-size-listener",
@@ -13,33 +20,34 @@
   "bugs": {
     "url": "https://github.com/kunokdev/react-window-size-listener/issues"
   },
-  "dependencies": {
-    "lodash.debounce": "^3.1.1",
-    "prop-types": "^15.6.0",
-    "randomatic": ">=3.0.0"
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-react": "^6.24.1",
-    "webpack": "^3.11.0"
-  },
-  "peerDependencies": {
-    "react": ">=15.0.0 <= 16",
-    "react-dom": ">=15.0.0 <= 16"
+    "@testing-library/react": "^14.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "jsdom": "^22.0.0",
+    "microbundle": "^0.15.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.0.0",
+    "vitest": "^0.34.0"
   },
   "scripts": {
-    "dev": "webpack --watch",
-    "build": "webpack -p"
+    "build": "microbundle",
+    "dev": "microbundle watch",
+    "test": "vitest run"
   },
   "keywords": [
-    "reactjs",
     "react",
-    "resize",
-    "listener",
+    "hook",
     "window",
     "resize",
-    "viewport"
+    "size",
+    "listener",
+    "viewport",
+    "typescript"
   ]
 }
