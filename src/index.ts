@@ -13,30 +13,36 @@ export interface UseWindowSizeOptions {
   debounceTime?: number;
 }
 
+/** Check if we're in a browser environment */
 const isClient = typeof window !== 'undefined';
 
-const getWindowSize = (): WindowSize => {
+/** Get current window dimensions, returns 0x0 on server */
+function getWindowSize(): WindowSize {
   if (!isClient) {
-    return {
-      width: 0,
-      height: 0,
-    };
+    return { width: 0, height: 0 };
   }
   return {
     width: window.innerWidth,
     height: window.innerHeight,
   };
-};
+}
 
 /**
  * Hook that tracks the window size with optional debouncing.
  *
  * @param options Configuration options
  * @returns Object containing `width` and `height` of the window.
+ *
+ * @example
+ * ```tsx
+ * const { width, height } = useWindowSize();
+ * const isMobile = width < 768;
+ * ```
  */
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
   const { debounceTime = 100 } = options;
 
+  // Initialize with current size (0x0 on server, real values on client)
   const [windowSize, setWindowSize] = useState<WindowSize>(getWindowSize);
 
   const handleResize = useCallback(() => {
@@ -48,25 +54,23 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
       return;
     }
 
+    // Update size on mount to handle SSR hydration
+    handleResize();
+
     let timeoutId: number | null = null;
 
     const debouncedHandleResize = () => {
       if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
-
-      timeoutId = window.setTimeout(() => {
-        handleResize();
-      }, debounceTime);
+      timeoutId = window.setTimeout(handleResize, debounceTime);
     };
 
-    // Update size on mount to ensure we have correct values (hydration mismatch fix)
-    handleResize();
-
-    window.addEventListener("resize", debouncedHandleResize, { passive: true });
+    // Use passive listener for better scroll performance
+    window.addEventListener('resize', debouncedHandleResize, { passive: true });
 
     return () => {
-      window.removeEventListener("resize", debouncedHandleResize);
+      window.removeEventListener('resize', debouncedHandleResize);
       if (timeoutId) {
         window.clearTimeout(timeoutId);
       }
