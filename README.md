@@ -1,88 +1,122 @@
 # react-window-size-listener
 
-React component for listening to window resize events.
+![npm version](https://img.shields.io/npm/v/react-window-size-listener)
+![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)
 
-This is ES6 rewrite of [react-window-resize-listener](https://github.com/cesarandreu/react-window-resize-listener) due to deprecation warnings and many developers commented on this issue without getting any response for a while.
+A minimalistic, modern React hook for listening to window resize events with built-in debouncing.
+
+## Features
+
+- **Minimalistic**: Tiny footprint, no external dependencies (removed lodash).
+- **Modern**: Written in TypeScript, built as a React Hook.
+- **Performant**: Built-in debouncing and passive event listeners to prevent excessive re-renders and scroll jank.
+- **SSR Safe**: Checks for `window` existence, safe to use in Next.js/Gatsby/Remix.
 
 ## Installation
 
 ```sh
-npm install react-window-size-listener --save
+npm install react-window-size-listener
+# or
+yarn add react-window-size-listener
+# or
+pnpm add react-window-size-listener
+```
+
+## Usage
+
+### `useWindowSize`
+
+This hook returns an object containing the current `width` and `height` of the window.
+
+```jsx
+import React from 'react';
+import { useWindowSize } from 'react-window-size-listener';
+
+function App() {
+  const { width, height } = useWindowSize();
+
+  return (
+    <div>
+      <h1>Window Size</h1>
+      <p>Width: {width}px</p>
+      <p>Height: {height}px</p>
+    </div>
+  );
+}
+```
+
+### SSR / Next.js Usage
+
+When using with Next.js App Router, ensure you use the `"use client"` directive since this hook relies on browser APIs.
+
+```tsx
+"use client";
+
+import { useWindowSize } from 'react-window-size-listener';
+
+export default function ClientComponent() {
+  const { width } = useWindowSize();
+  return <div>Window width: {width}</div>;
+}
+```
+
+### Advanced Example: `useBreakpoint` helper
+
+You can easily compose this hook to create a breakpoint helper.
+
+```tsx
+import { useWindowSize } from 'react-window-size-listener';
+
+const useBreakpoint = () => {
+  const { width } = useWindowSize();
+
+  if (width < 640) return 'sm';
+  if (width < 768) return 'md';
+  if (width < 1024) return 'lg';
+  return 'xl';
+};
+```
+
+### Configuration
+
+You can customize the debounce time by passing an options object. The default is `100ms`.
+
+```jsx
+// Wait 500ms after the last resize event before updating state
+const { width, height } = useWindowSize({ debounceTime: 500 });
 ```
 
 ## API
 
-### `<WindowSizeListener onResize/>`
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `options.debounceTime` | `number` | `100` | Delay in ms before updating state after resize |
+| **Returns** | `WindowSize` | | Object `{ width: number, height: number }` |
 
-React component that takes a single onResize callback which is called every time the window is resized.
+### TypeScript Types
 
-#### Props
+The library exports the following types for your convenience:
 
-* `void onResize(windowSize)` - Callback that gets called every time the window is resized. It's always called once soon after getting mounted. Receives a `windowSize` param which is an Object with keys `windowHeight` and `windowWidth`, both values are numbers.
-
-#### Example
-
-As regular component:
-
-```jsx
-import WindowSizeListener from 'react-window-size-listener'
-import ReactDOM from 'react-dom'
-import React from 'react'
-
-ReactDOM.render(
-  <div>
-    <WindowSizeListener onResize={windowSize => {
-      console.log('Window height', windowSize.windowHeight)
-      console.log('Window width', windowSize.windowWidth)
-    }}/>
-  </div>,
-  document.getElementById('app')
-)
+```ts
+import type { WindowSize, UseWindowSizeOptions } from 'react-window-size-listener';
 ```
 
-alternatively you can render it with children:
+## Migration from v1
 
+Version 1.6.0 is a complete rewrite. The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of the `useWindowSize` hook.
+
+**Old way (v1):**
 ```jsx
-<WindowSizeListener
-  onResize={(windowSize) => console.log(windowSize)}
->
-  <h1>Hello world!</h1>
-</WindowSizeListener>
+<WindowSizeListener onResize={windowSize => console.log(windowSize)} />
 ```
 
-or as Higher Order Component (HOC):
-
+**New way (v1.6+):**
 ```jsx
-import React from 'react';
-import { withWindowSizeListener } from 'react-window-size-listener';
-
-class App extends React.Component {
-  render() {
-    return (
-      <span>
-        {this.props.windowSize.windowWidth}
-        {this.props.windowSize.windowHeight}
-      </span>
-    );
-  }
-}
-
-export default withWindowSizeListener(App);
-
+const { width, height } = useWindowSize();
+useEffect(() => {
+  console.log({ width, height });
+}, [width, height]);
 ```
-
-
-### `WindowSizeListener.DEBOUNCE_TIME`
-
-Numeric value of how much time should be waited before calling each listener function. Default value is `100`.
-
-The debounce function is created lazily when the component instance is mounted, so you can change the value before mounting.
-
-## Details
-
-This component lazily adds the window resize event listener, this means it works with universal apps. The listener only get added when a component instance gets mounted.
-
-To avoid performance problems associated with registering multiple event listeners, it only registers a single listener which is shared among all component instances.
 
 ## License
 
