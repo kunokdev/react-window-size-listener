@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export interface WindowSize {
   width: number;
@@ -13,6 +13,18 @@ export interface UseWindowSizeOptions {
   debounceTime?: number;
 }
 
+const isClient = typeof window !== 'undefined';
+
+function getWindowSize(): WindowSize {
+  if (!isClient) {
+    return { width: 0, height: 0 };
+  }
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight,
+  };
+}
+
 /**
  * Hook that tracks the window size with optional debouncing.
  *
@@ -22,64 +34,39 @@ export interface UseWindowSizeOptions {
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
   const { debounceTime = 100 } = options;
 
-  // Initialize state with undefined width/height so server and client renders match
-  // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
-  // However, for this specific hook, returning a default size or 0 is often preferred
-  // depending on the use case.
-  // To allow this to be "SSR safe" but usable immediately on client if possible:
-  const [windowSize, setWindowSize] = useState<WindowSize>(() => {
-    if (typeof window !== 'undefined') {
-      return {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    }
-    return {
-      width: 0,
-      height: 0,
-    };
-  });
+  // Initialize with 0 on server, will be updated on mount
+  const [windowSize, setWindowSize] = useState<WindowSize>(getWindowSize);
+
+  const handleResize = useCallback(() => {
+    setWindowSize(getWindowSize());
+  }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (!isClient) {
       return;
     }
 
+    // Update size on mount (handles SSR hydration)
+    handleResize();
+
     let timeoutId: number | null = null;
 
-    const handleResize = () => {
-      if (timeoutId) {
+    const debouncedHandleResize = () => {
+      if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
       }
-
-      timeoutId = window.setTimeout(() => {
-        setWindowSize({
-          width: window.innerWidth,
-          height: window.innerHeight,
-        });
-      }, debounceTime);
+      timeoutId = window.setTimeout(handleResize, debounceTime);
     };
 
-    // Add event listener
-    window.addEventListener("resize", handleResize);
-
-    // Call handler right away so state gets updated with initial window size
-    // (In case the initial state was set during SSR or if window changed before mount)
-    // Actually, setting it in state initializer covers the "mount" case for CSR.
-    // But if we want to ensure we catch any updates or if we want to handle the "0,0" -> "real size" transition
-    // for hydration compatibility, we might want to force an update.
-    // However, simplest is just to listen.
-
-    // We do NOT call handleResize() immediately here because we initialized state
-    // with the current window size (if available).
+    window.addEventListener('resize', debouncedHandleResize, { passive: true });
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      if (timeoutId) {
+      window.removeEventListener('resize', debouncedHandleResize);
+      if (timeoutId !== null) {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [debounceTime]); // Re-bind if debounceTime changes
+  }, [debounceTime, handleResize]);
 
   return windowSize;
 }

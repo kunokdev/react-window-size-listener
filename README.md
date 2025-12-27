@@ -2,12 +2,17 @@
 
 A minimalistic, modern React hook for listening to window resize events with built-in debouncing.
 
+[![npm version](https://img.shields.io/npm/v/react-window-size-listener.svg)](https://www.npmjs.com/package/react-window-size-listener)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Features
 
-- **Minimalistic**: Tiny footprint, no external dependencies (removed lodash).
-- **Modern**: Written in TypeScript, built as a React Hook.
-- **Performant**: Built-in debouncing to prevent excessive re-renders.
-- **SSR Safe**: Checks for `window` existence, safe to use in Next.js/Gatsby/Remix.
+- **Minimalistic**: Tiny footprint (~500 bytes gzipped), no external dependencies
+- **Modern**: Written in TypeScript, built as a React Hook
+- **Performant**: Built-in debouncing to prevent excessive re-renders
+- **SSR Safe**: Works with Next.js, Gatsby, Remix, and other SSR frameworks
+- **Tree-shakeable**: Marked as side-effect free for optimal bundling
 
 ## Installation
 
@@ -21,34 +26,60 @@ pnpm add react-window-size-listener
 
 ## Usage
 
-### `useWindowSize`
+### Basic Usage
 
-This hook returns an object containing the current `width` and `height` of the window.
-
-```jsx
-import React from 'react';
+```tsx
 import { useWindowSize } from 'react-window-size-listener';
 
-function App() {
+function ResponsiveComponent() {
   const { width, height } = useWindowSize();
 
   return (
     <div>
-      <h1>Window Size</h1>
-      <p>Width: {width}px</p>
-      <p>Height: {height}px</p>
+      <p>Window size: {width} x {height}</p>
+      {width < 768 ? <MobileLayout /> : <DesktopLayout />}
     </div>
   );
 }
 ```
 
-### Configuration
+### Custom Debounce Time
 
-You can customize the debounce time by passing an options object. The default is `100ms`.
-
-```jsx
-// Wait 500ms after the last resize event before updating state
+```tsx
+// Wait 500ms after the last resize event before updating
 const { width, height } = useWindowSize({ debounceTime: 500 });
+```
+
+### Responsive Breakpoints
+
+```tsx
+function useBreakpoint() {
+  const { width } = useWindowSize();
+
+  if (width < 640) return 'sm';
+  if (width < 768) return 'md';
+  if (width < 1024) return 'lg';
+  if (width < 1280) return 'xl';
+  return '2xl';
+}
+```
+
+### With SSR/Next.js
+
+The hook is SSR-safe out of the box. During server-side rendering, it returns `{ width: 0, height: 0 }` and updates to the actual window size on the client after hydration.
+
+```tsx
+// Works in Next.js App Router
+'use client';
+
+import { useWindowSize } from 'react-window-size-listener';
+
+export function ClientComponent() {
+  const { width } = useWindowSize();
+
+  // width will be 0 during SSR, then update on client
+  return <div>Width: {width || 'Loading...'}</div>;
+}
 ```
 
 ## API
@@ -57,30 +88,51 @@ const { width, height } = useWindowSize({ debounceTime: 500 });
 
 #### Parameters
 
-- `options` (optional): `UseWindowSizeOptions`
-  - `debounceTime` (number): Amount of time in milliseconds to wait before updating the state after the last resize event. Default: `100`.
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `debounceTime` | `number` | `100` | Time in milliseconds to wait after the last resize event before updating state |
 
 #### Returns
 
-- `WindowSize`: `{ width: number, height: number }`
+```ts
+interface WindowSize {
+  width: number;
+  height: number;
+}
+```
+
+#### TypeScript Types
+
+The package exports TypeScript types for full type safety:
+
+```ts
+import { useWindowSize, WindowSize, UseWindowSizeOptions } from 'react-window-size-listener';
+```
 
 ## Migration from v1
 
 Version 1.6.0 is a complete rewrite. The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of the `useWindowSize` hook.
 
-**Old way (v1):**
+**Before (v1):**
 ```jsx
 <WindowSizeListener onResize={windowSize => console.log(windowSize)} />
 ```
 
-**New way (v1.6+):**
-```jsx
+**After (v1.6+):**
+```tsx
 const { width, height } = useWindowSize();
+
 useEffect(() => {
   console.log({ width, height });
 }, [width, height]);
 ```
 
+## Browser Support
+
+Supports all modern browsers. For older browsers, ensure you have appropriate polyfills for `window.addEventListener`.
+
 ## License
 
-MIT
+MIT © [Krunoslav Banovac](https://github.com/kunokdev)
+
+Originally created by [Cesar Andreu](https://github.com/cesarandreu)

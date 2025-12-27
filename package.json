@@ -7,9 +7,13 @@
   "module": "dist/index.module.js",
   "types": "dist/index.d.ts",
   "exports": {
-    "require": "./dist/index.js",
-    "default": "./dist/index.module.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.module.js",
+      "require": "./dist/index.js"
+    }
   },
+  "sideEffects": false,
   "author": "Cesar Andreu <cesarandreu@gmail.com>, rewrite by Krunoslav Banovac <kunokdev@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/kunokdev/react-window-size-listener",
@@ -21,8 +25,7 @@
     "url": "https://github.com/kunokdev/react-window-size-listener/issues"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react": ">=16.8.0"
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",
