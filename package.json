@@ -1,6 +1,6 @@
 {
   "name": "react-window-size-listener",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Minimalistic React hook for listening to window resize events with built-in debouncing.",
   "source": "src/index.ts",
   "main": "dist/index.js",

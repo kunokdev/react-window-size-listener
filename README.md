@@ -86,7 +86,33 @@ You can customize the debounce time by passing an options object. The default is
 const { width, height } = useWindowSize({ debounceTime: 500 });
 ```
 
+### `useViewportSize`
+
+Returns the visual viewport size using the [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API). This accounts for pinch-zoom, on-screen keyboards, and browser chrome on mobile devices. Falls back to window dimensions if the API is not available.
+
+```jsx
+import { useViewportSize } from 'react-window-size-listener';
+
+function App() {
+  const { width, height } = useViewportSize();
+
+  return (
+    <div>
+      <p>Viewport: {width} x {height}</p>
+    </div>
+  );
+}
+```
+
 ## API
+
+### `useWindowSize(options?)`
+
+Tracks `window.innerWidth` and `window.innerHeight`.
+
+### `useViewportSize(options?)`
+
+Tracks the visual viewport dimensions (with fallback to window dimensions).
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
