@@ -23,10 +23,9 @@ pnpm add react-window-size-listener
 
 ### `useWindowSize`
 
-This hook returns an object containing the current `width` and `height` of the window.
+Returns the current `window.innerWidth` and `window.innerHeight`.
 
 ```jsx
-import React from 'react';
 import { useWindowSize } from 'react-window-size-listener';
 
 function App() {
@@ -34,9 +33,25 @@ function App() {
 
   return (
     <div>
-      <h1>Window Size</h1>
-      <p>Width: {width}px</p>
-      <p>Height: {height}px</p>
+      <p>Window: {width} x {height}</p>
+    </div>
+  );
+}
+```
+
+### `useViewportSize`
+
+Returns the visual viewport size using the [Visual Viewport API](https://developer.mozilla.org/en-US/docs/Web/API/Visual_Viewport_API). This accounts for pinch-zoom, on-screen keyboards, and browser chrome on mobile devices. Falls back to window dimensions if the API is not available.
+
+```jsx
+import { useViewportSize } from 'react-window-size-listener';
+
+function App() {
+  const { width, height } = useViewportSize();
+
+  return (
+    <div>
+      <p>Viewport: {width} x {height}</p>
     </div>
   );
 }
@@ -44,36 +59,42 @@ function App() {
 
 ### Configuration
 
-You can customize the debounce time by passing an options object. The default is `100ms`.
+Both hooks accept an options object to customize the debounce time (default: `100ms`).
 
 ```jsx
-// Wait 500ms after the last resize event before updating state
 const { width, height } = useWindowSize({ debounceTime: 500 });
+const { width, height } = useViewportSize({ debounceTime: 500 });
 ```
 
 ## API
 
 ### `useWindowSize(options?)`
 
+Tracks `window.innerWidth` and `window.innerHeight`.
+
+### `useViewportSize(options?)`
+
+Tracks the visual viewport dimensions (with fallback to window dimensions).
+
 #### Parameters
 
 - `options` (optional): `UseWindowSizeOptions`
-  - `debounceTime` (number): Amount of time in milliseconds to wait before updating the state after the last resize event. Default: `100`.
+  - `debounceTime` (number): Milliseconds to wait after the last resize event. Default: `100`.
 
 #### Returns
 
-- `WindowSize`: `{ width: number, height: number }`
+- `{ width: number, height: number }`
 
 ## Migration from v1
 
-Version 1.6.0 is a complete rewrite. The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of the `useWindowSize` hook.
+The old Class Component `WindowSizeListener` and HOC `withWindowSizeListener` have been removed in favor of hooks.
 
 **Old way (v1):**
 ```jsx
 <WindowSizeListener onResize={windowSize => console.log(windowSize)} />
 ```
 
-**New way (v1.6+):**
+**New way (v2+):**
 ```jsx
 const { width, height } = useWindowSize();
 useEffect(() => {

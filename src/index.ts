@@ -14,7 +14,7 @@ export interface UseWindowSizeOptions {
 }
 
 /**
- * Hook that tracks the window size with optional debouncing.
+ * Hook that tracks the window size (window.innerWidth/Height) with optional debouncing.
  *
  * @param options Configuration options
  * @returns Object containing `width` and `height` of the window.
@@ -22,11 +22,6 @@ export interface UseWindowSizeOptions {
 export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
   const { debounceTime = 100 } = options;
 
-  // Initialize state with undefined width/height so server and client renders match
-  // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
-  // However, for this specific hook, returning a default size or 0 is often preferred
-  // depending on the use case.
-  // To allow this to be "SSR safe" but usable immediately on client if possible:
   const [windowSize, setWindowSize] = useState<WindowSize>(() => {
     if (typeof window !== 'undefined') {
       return {
@@ -34,10 +29,7 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
         height: window.innerHeight,
       };
     }
-    return {
-      width: 0,
-      height: 0,
-    };
+    return { width: 0, height: 0 };
   });
 
   useEffect(() => {
@@ -60,18 +52,7 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
       }, debounceTime);
     };
 
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Call handler right away so state gets updated with initial window size
-    // (In case the initial state was set during SSR or if window changed before mount)
-    // Actually, setting it in state initializer covers the "mount" case for CSR.
-    // But if we want to ensure we catch any updates or if we want to handle the "0,0" -> "real size" transition
-    // for hydration compatibility, we might want to force an update.
-    // However, simplest is just to listen.
-
-    // We do NOT call handleResize() immediately here because we initialized state
-    // with the current window size (if available).
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -79,7 +60,85 @@ export function useWindowSize(options: UseWindowSizeOptions = {}): WindowSize {
         window.clearTimeout(timeoutId);
       }
     };
-  }, [debounceTime]); // Re-bind if debounceTime changes
+  }, [debounceTime]);
 
   return windowSize;
+}
+
+/**
+ * Hook that tracks the visual viewport size with optional debouncing.
+ * Uses the Visual Viewport API which accounts for pinch-zoom, on-screen keyboards,
+ * and browser chrome on mobile devices.
+ * Falls back to window.innerWidth/Height if Visual Viewport API is not available.
+ *
+ * @param options Configuration options
+ * @returns Object containing `width` and `height` of the visual viewport.
+ */
+export function useViewportSize(options: UseWindowSizeOptions = {}): WindowSize {
+  const { debounceTime = 100 } = options;
+
+  const [viewportSize, setViewportSize] = useState<WindowSize>(() => {
+    if (typeof window === 'undefined') {
+      return { width: 0, height: 0 };
+    }
+    if (window.visualViewport) {
+      return {
+        width: window.visualViewport.width,
+        height: window.visualViewport.height,
+      };
+    }
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    let timeoutId: number | null = null;
+
+    const handleResize = () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+
+      timeoutId = window.setTimeout(() => {
+        if (window.visualViewport) {
+          setViewportSize({
+            width: window.visualViewport.width,
+            height: window.visualViewport.height,
+          });
+        } else {
+          setViewportSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
+        }
+      }, debounceTime);
+    };
+
+    // Use Visual Viewport API if available, otherwise fallback to window
+    const target = window.visualViewport || window;
+    target.addEventListener("resize", handleResize);
+
+    // For visual viewport, also listen to scroll events (viewport position changes during pinch-zoom)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("scroll", handleResize);
+    }
+
+    return () => {
+      target.removeEventListener("resize", handleResize);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("scroll", handleResize);
+      }
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [debounceTime]);
+
+  return viewportSize;
 }
