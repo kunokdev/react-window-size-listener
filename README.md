@@ -7,7 +7,7 @@ A minimalistic, modern React hook for listening to window resize events with bui
 
 ## Features
 
-- **Minimalistic**: Tiny footprint, no external dependencies (removed lodash).
+- **Minimalistic**: Tiny footprint, no external dependencies.
 - **Modern**: Written in TypeScript, built as a React Hook.
 - **Performant**: Built-in debouncing and passive event listeners to prevent excessive re-renders and scroll jank.
 - **SSR Safe**: Checks for `window` existence, safe to use in Next.js/Gatsby/Remix.
